@@ -39,7 +39,7 @@ for epoch = 1:maxIter
     V = updateColumnV(V, U, SY, Sc, bit, lambda, sampleColumn,F,SX);
     
     % update F
-    F=SX.*SY';
+    F=SX.*SY'+ U.*V;
     if bit >= 16
      F(F>0)=1;
      F(F<=0)=-1;
