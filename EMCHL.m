@@ -23,7 +23,7 @@ Wy = ones(size(YTrain,2),size(BY_opt,2));
 SX = ones(numTrain, bit);
 SY = ones(numTrain, bit)';
 F = zeros(numTrain, bit);
-V = zeros(numTrain, bit);
+v = zeros(numTrain, bit);
 objectivex = 0;
 
 for epoch = 1:maxIter
@@ -39,7 +39,7 @@ for epoch = 1:maxIter
     V = updateColumnV(V, U, SY, Sc, bit, lambda, sampleColumn,F,SX);
     
     % update F
-    F=SX.*SY'+ U.*V + V;
+    F=SX.*SY'+ U.*V + v;
     if bit >= 16
      F(F>0)=1;
      F(F<=0)=-1;
