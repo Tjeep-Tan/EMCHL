@@ -1,4 +1,4 @@
-function [BX_opt, BY_opt,Wx, Wy] = EMCHL(dataset, trainLabel, param)
+function [BX_opt, BY_opt,Wx, Wy] = EMCHL(dataset, Lx, Ly, param)
 bit = param.bit;
 maxIter = param.maxIter;
 sampleColumn = param.num_samples; 
@@ -6,7 +6,7 @@ lambda = param.lambda;
 XTrain = dataset.XDatabase;  
 YTrain = dataset.YDatabase;  
 
-numTrain = size(trainLabel, 1);
+numTrain = size(Lx, 1);
 
 U = ones(numTrain, bit);
 U(randn(numTrain, bit) <= 0) = -1;
@@ -31,15 +31,15 @@ for epoch = 1:maxIter
     Sc = randperm(numTrain, sampleColumn);
     
     % update BX
-    SX = single(trainLabel * trainLabel(Sc, :)' > 0); % 18000x8 logical
+    SX = single(Lx * Ly(Sc, :)' > 0); % 18000x8 logical
     U = updateColumnU(U, V, SX, Sc, bit, lambda, sampleColumn,F,SY);
     
     % update BY
-    SY = single(trainLabel(Sc, :) * trainLabel' > 0);
+    SY = single(Lx(Sc, :) * Ly' > 0);
     V = updateColumnV(V, U, SY, Sc, bit, lambda, sampleColumn,F,SX);
     
     % update F
-    F=SX.*SY'+ U.*V + v;
+    F=Lx.*Ly+ U.*V + v;
     if bit >= 16
      F(F>0)=1;
      F(F<=0)=-1;
@@ -52,9 +52,9 @@ for epoch = 1:maxIter
     BY_opt = V;
   
     Wx =(2.*XTrain' * XTrain+ param.gamma * eye(size(XTrain, 2))) \ ...
-    (XTrain' * BX_opt+0.16*XTrain'* (SX+BY_opt)); % 500x8; 0.12
+    (XTrain' * BX_opt+0.16*XTrain'* (Lx+BY_opt)); % 500x8; 0.12
     Wy =(2.*YTrain' * YTrain + param.gamma * eye(size(YTrain, 2))) \ ...
-    (YTrain' * BY_opt+0.16*YTrain'* (SY'+BX_opt));  % 1000x8; 1.0
+    (YTrain' * BY_opt+0.16*YTrain'* (Ly+BX_opt));  % 1000x8; 1.0
 
    save x8.mat x
 
